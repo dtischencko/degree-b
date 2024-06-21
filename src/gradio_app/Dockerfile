@@ -15,6 +15,6 @@ RUN pip install -r requirements.txt
 
 WORKDIR /home/root/gradio
 
-EXPOSE ${APP_PORT}
+EXPOSE ${GRADIO_APP_PORT}
 
 ENTRYPOINT [ "python", "app.py" ]

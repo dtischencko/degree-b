@@ -11,9 +11,9 @@ logging.basicConfig(
 )
 
 load_dotenv()
-RETRIEVER_MODEL_NAME = "DiTy/bi-encoder-russian-msmarco"#os.getenv('RETRIEVER_MODEL_NAME')
-MODEL_CACHE = "../../model" #os.getenv('MODEL_CACHE')
+RETRIEVER_MODEL_NAME = os.getenv('RETRIEVER_MODEL_NAME')
+MODEL_CACHE = os.getenv('MODEL_CACHE')
 DEVICE = 'cuda' if cuda.is_available() else 'cpu'
-DOMAIN_TOPIC = "растения, цветы."
+DOMAIN_TOPIC = os.getenv('DOMAIN_TOPIC')
 
 logging.info(f"Models: {RETRIEVER_MODEL_NAME}; in cache {MODEL_CACHE}")

@@ -13,15 +13,16 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 )
 
-APP_HOST_IP = "0.0.0.0"
-APP_PORT = 8888 #int(os.getenv('APP_PORT'))
-RAG_URL = f"http://{APP_HOST_IP}:8892/get_answer"
-# CENSOR_URL = f"http://{APP_HOST_IP}:8891/filt"
-logging.info(f"APP_HOST_IP: {APP_HOST_IP};\tAPP_PORT: {APP_PORT};\tRAG_URL: {RAG_URL}")
+
+GRADIO_APP_PORT = int(os.getenv('GRADIO_APP_PORT'))
+RAG_APP_PORT = int(os.getenv('RAG_APP_PORT'))
+CENSOR_APP_PORT = int(os.getenv('CENSOR_APP_PORT'))
+RAG_URL = f"http://0.0.0.0:{RAG_APP_PORT}/get_answer"
+CENSOR_URL = f"http://0.0.0.0:{CENSOR_APP_PORT}/filt"
+logging.info(f"\tGRADIO_APP_PORT: {GRADIO_APP_PORT};\tRAG_URL: {RAG_URL};\tCENSOR_URL: {CENSOR_URL}")
 
 theme = gr.themes.Base(
     primary_hue="green",
-    # secondary_hue="white",
 )
 
 
@@ -46,9 +47,9 @@ with gr.Blocks(title="Retrieval-Augmented Generation with Censor-Filter", theme=
             gr.Warning(f'Response status: {response.status_code}')
             return None, None
 
-        logging.info(f"Response text: {response.text}")
+        logging.info(f"Response: {response['answer']}")
 
-        return response.text
+        return response['answer']
 
 
     gr.Markdown(
@@ -89,8 +90,8 @@ with gr.Blocks(title="Retrieval-Augmented Generation with Censor-Filter", theme=
         ask_quest_btn.click(ask_question, [msg_txt, confidience_slider], [answer_text_area])
 
 demo.launch(
-    server_name=APP_HOST_IP,
-    server_port=APP_PORT,
+    server_name="0.0.0.0",
+    server_port=GRADIO_APP_PORT,
     share=True,
     show_error=True,
 )

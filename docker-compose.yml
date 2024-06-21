@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  rag_app:
+    container_name: rag_app
+    build:
+      context: ./src/rag_app
+      dockerfile: ./Dockerfile
+    image: rag_app:latest
+    env_file:
+      - ./.env
+    ports:
+      - "${RAG_APP_PORT}:${RAG_APP_PORT}"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${RAG_APP_PORT}"]
+    volumes:
+      - "./src/rag_app:/home/root/app"
+
+  censor_app:
+    container_name: censor_app
+    build: 
+      context: ./src/censor_app
+      dockerfile: ./Dockerfile
+    image: "dmitrydity/censor_app:latest"
+    env_file:
+      - ./.env
+    ports:
+      - "${CENSOR_APP_PORT}:${CENSOR_APP_PORT}"
+    volumes:
+      - "./src/censor_app:/home/root/app"
+
+  gradio_app:
+    container_name: gradio_app
+    build: 
+      context: ./src/gradio_app
+      dockerfile: ./Dockerfile
+    image: "gradio_app:latest"
+    env_file:
+      - ./.env
+    ports:
+      - "${GRADIO_APP_PORT}:${GRADIO_APP_PORT}"
+    volumes:
+      - "./src/gradio_app:/home/root/app"

@@ -53,10 +53,10 @@ async def hello_world():
     return html_content
 
 
-if __name__ == '__main__':
-    uvicorn.run(
-        'app:app',
-        host="0.0.0.0",
-        port=8891,
-        log_level="info"
-    )
+# if __name__ == '__main__':
+#     uvicorn.run(
+#         'app:app',
+#         host="0.0.0.0",
+#         port=8891,
+#         log_level="info"
+#     )

@@ -6,10 +6,11 @@ import asyncio
 import uvicorn
 import requests
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
-# from rag import RAGHandler
+from rag import RAGHandler
+from config import CENSOR_APP_PORT
 
 
 logging.basicConfig(
@@ -18,7 +19,7 @@ logging.basicConfig(
 )
 
 
-# rag_handler = RAGHandler()
+rag_handler = RAGHandler()
 app = FastAPI()
 
 
@@ -27,12 +28,12 @@ class QuestionRequest(BaseModel):
     threshold_confidience: float
 
 
-@app.post("/get_answer/", response_class=PlainTextResponse)
+@app.post("/get_answer/", response_class=JSONResponse)
 async def retrieve_augmented_generate(q_request: QuestionRequest):
     
     # filt message
     response = requests.post(
-        url="http://0.0.0.0:8891/filt/",  # fixme
+        url=f"http://0.0.0.0:{CENSOR_APP_PORT}/filt/",  # fixme
         json={
             'query': q_request.query,
             'threshold_confidience': q_request.threshold_confidience,
@@ -48,13 +49,12 @@ async def retrieve_augmented_generate(q_request: QuestionRequest):
         logging.info("RAG blocked!")
 
     else:
-        # rag
         logging.info("RAG started!")
         results = response.text
-        # results = rag_handler.do_rag(
-        #     query=q_request.query,
-        #     threshold_confidience=0.8,
-        # )
+        results = rag_handler.do_rag(
+            query=q_request.query,
+            threshold_confidience=0.8,
+        )
 
     return results
 
@@ -74,10 +74,10 @@ async def hello_world():
     return html_content
 
 
-if __name__ == '__main__':
-    uvicorn.run(
-        'app:app',
-        host="0.0.0.0",
-        port=8892,
-        log_level="info"
-    )
+# if __name__ == '__main__':
+#     uvicorn.run(
+#         'app:app',
+#         host="0.0.0.0",
+#         port=8892,
+#         log_level="info"
+#     )

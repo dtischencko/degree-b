@@ -29,15 +29,15 @@ class RAGHandler:
             cache_dir = os.path.abspath('./hf_cache')
             logging.warning(f"Cache directory is None => cache_dir is set by default ({cache_dir})")
 
-        # self.llm_model = AutoModelForCausalLM.from_pretrained(
-        #     LLM_MODEL_NAME,
-        #     torch_dtype=LLM_DTYPE,
-        #     cache_dir=cache_dir,
-        # ).to(DEVICE)
-        # self.llm_tokenizer = AutoTokenizer.from_pretrained(
-        #     LLM_MODEL_NAME,
-        #     cache_dir=cache_dir,
-        # )
+        self.llm_model = AutoModelForCausalLM.from_pretrained(
+            LLM_MODEL_NAME,
+            torch_dtype=LLM_DTYPE,
+            cache_dir=cache_dir,
+        ).to(DEVICE)
+        self.llm_tokenizer = AutoTokenizer.from_pretrained(
+            LLM_MODEL_NAME,
+            cache_dir=cache_dir,
+        )
         self.retriever_model = SentenceTransformer(
             RETRIEVER_MODEL_NAME, 
             cache_folder=cache_dir
@@ -59,21 +59,16 @@ class RAGHandler:
         is_discard = False
         candidates = self.retrieve_and_rerank(query)
 
+        top_hit_id = candidates[0]['corpus_id']
+        top_hit_score = candidates[0]['score']
 
-        # top_hit_id = candidates[0]['corpus_id']
-        # top_hit_score = candidates[0]['score']
+        if top_hit_score < threshold_confidience:
+            is_discard = True
 
-        # if top_hit_score < threshold_confidience:
-        #     is_discard = True
-
-
-        print(is_discard)
-        print(candidates)
-        # answer = self.generate(query, self.corpus[top_hit_id], is_discard)
+        answer = self.generate(query, self.corpus[top_hit_id], is_discard)
 
         return {
-            # "answer": answer,
-            # "retrieve_logs": full_logs
+            "answer": answer,
         }
 
 
@@ -84,40 +79,39 @@ class RAGHandler:
         is_discard: bool = False,
     ) -> str:
         
-        # messages = [
-        #     {"role": "system", "content": S_PROMPT},
-        #     {"role": "user", "content": query},
-        # ]
+        messages = [
+            {"role": "system", "content": S_PROMPT},
+            {"role": "user", "content": query},
+        ]
 
-        # logging.debug(f"MESSAGES:\n{messages}")
+        logging.debug(f"MESSAGES:\n{messages}")
 
-        # input_ids = self.llm_tokenizer.apply_chat_template(
-        #     messages,
-        #     add_generation_prompt=True,
-        #     return_tensors="pt"
-        # ).to(self.llm_model.device)
+        input_ids = self.llm_tokenizer.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            return_tensors="pt"
+        ).to(self.llm_model.device)
 
-        # terminators = [
-        #     self.llm_tokenizer.eos_token_id,
-        #     self.llm_tokenizer.convert_tokens_to_ids("<|eot_id|>")
-        # ]
+        terminators = [
+            self.llm_tokenizer.eos_token_id,
+            self.llm_tokenizer.convert_tokens_to_ids("<|eot_id|>")
+        ]
 
-        # outputs = self.llm_model.generate(
-        #     input_ids,
-        #     max_new_tokens=256,
-        #     eos_token_id=terminators,
-        #     do_sample=True,
-        #     temperature=0.6,
-        #     top_p=0.9,
-        # )
+        outputs = self.llm_model.generate(
+            input_ids,
+            max_new_tokens=256,
+            eos_token_id=terminators,
+            do_sample=True,
+            temperature=0.6,
+            top_p=0.9,
+        )
 
-        # response = outputs[0][input_ids.shape[-1]:]
-        # decoded_response = self.llm_tokenizer.decode(response, skip_special_tokens=True)
+        response = outputs[0][input_ids.shape[-1]:]
+        decoded_response = self.llm_tokenizer.decode(response, skip_special_tokens=True)
 
-        # logging.info(f"ANSWER (is_discard:{is_discard})\n{decoded_response}")
+        logging.info(f"ANSWER (is_discard:{is_discard})\n{decoded_response}")
 
-        # return decoded_response
-        pass
+        return decoded_response
 
 
     def retrieve_and_rerank(  
@@ -125,9 +119,6 @@ class RAGHandler:
         query: str,
         need_retrieve=False
     ) -> list:
-        
-        if need_retrieve:  # FIXME: Add retrieve mode
-            pass
 
         results = self.reranker_model.rank(
             query,
@@ -138,8 +129,3 @@ class RAGHandler:
         logging.info(f"SEMANTIC SEARCH RESULTS:\n{results}")
 
         return results
-
-
-if __name__ == '__main__':
-    rh = RAGHandler()
-

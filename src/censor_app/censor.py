@@ -65,7 +65,7 @@ def permute_words(input_str, n_permutes=32):
     if num_words < n_grams:
         logging.warning("Ошибка: количество слов в строке меньше, чем требуемое число слов для перестановки")
         return ""
-    
+
     permutated_sentence = input_str
     if n_grams > 1:
         for i in range(n_permutes):

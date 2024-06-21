@@ -28,4 +28,4 @@ RUN pip install -r ./requirements.txt
 
 WORKDIR /home/root/app
 
-ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7000"]
+ENTRYPOINT ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "${CENSOR_APP_PORT}"]
