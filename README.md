@@ -1,7 +1,9 @@
 # Исследование уязвимостей в моделях машинного обучения
 ## Model Cards
-* **Censor's model** -> [Bi-Encoder](https://huggingface.co/DiTy/bi-encoder-russian-msmarco)
-* **LLM model** -> [Autoregressive decoder-only](https://huggingface.co/Intel/neural-chat-7b-v3-2)
+* **Censor's model (обучена)** -> [Bi-Encoder](https://huggingface.co/DiTy/bi-encoder-russian-msmarco)
+* **Model for retrieve (обучена)** -> [Cross-Encoder](https://huggingface.co/DiTy/cross-encoder-russian-msmarco)
+* **LLM model (из коробки)** -> [Autoregressive decoder-only](https://huggingface.co/Intel/neural-chat-7b-v3-2)
+>>>>>>> 5edddbeeb546dfb0027214a49178f7f1cbf56ae5
 
 ## Цензор намерений
 
