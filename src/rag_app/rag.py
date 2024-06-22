@@ -56,16 +56,7 @@ class RAGHandler:
             threshold_confidience: float,
         ) -> dict:
 
-        is_discard = False
-        candidates = self.retrieve_and_rerank(query)
-
-        top_hit_id = candidates[0]['corpus_id']
-        top_hit_score = candidates[0]['score']
-
-        if top_hit_score < threshold_confidience:
-            is_discard = True
-
-        answer = self.generate(query, self.corpus[top_hit_id], is_discard)
+        answer = self.generate(query)
 
         return {
             "answer": answer,
@@ -75,8 +66,6 @@ class RAGHandler:
     def generate(
         self,
         query: str,
-        candidate: str,
-        is_discard: bool = False,
     ) -> str:
         
         messages = [
@@ -109,23 +98,6 @@ class RAGHandler:
         response = outputs[0][input_ids.shape[-1]:]
         decoded_response = self.llm_tokenizer.decode(response, skip_special_tokens=True)
 
-        logging.info(f"ANSWER (is_discard:{is_discard})\n{decoded_response}")
+        logging.info(f"ANSWER\n{decoded_response}")
 
         return decoded_response
-
-
-    def retrieve_and_rerank(  
-        self,
-        query: str,
-        need_retrieve=False
-    ) -> list:
-
-        results = self.reranker_model.rank(
-            query,
-            self.corpus,
-            top_k=10,
-        )
-
-        logging.info(f"SEMANTIC SEARCH RESULTS:\n{results}")
-
-        return results
